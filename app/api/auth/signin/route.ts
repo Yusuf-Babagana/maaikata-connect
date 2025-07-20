@@ -3,7 +3,10 @@ import { createClient } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import { z } from 'zod'
 
-const supabase = createClient()
+// You should replace the placeholders with your actual Supabase URL and anon/public key
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 const schema = z.object({
   email: z.string().email(),
