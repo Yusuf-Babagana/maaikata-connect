@@ -1,17 +1,14 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing environment variables: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY')
-}
+// Public client
+export const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey)
 
-// Export the client instance
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Optional: For admin access (e.g., creating users in backend route)
+export const supabaseAdmin = createSupabaseClient(supabaseUrl, supabaseServiceRole)
 
-// Optional: Export admin client if needed
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-export const supabaseAdmin = supabaseServiceRoleKey
-  ? createClient(supabaseUrl, supabaseServiceRoleKey)
-  : null
+// If you need to export the createClient itself:
+export { createSupabaseClient as createClient }
