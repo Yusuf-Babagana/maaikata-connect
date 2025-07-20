@@ -1,19 +1,16 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { createClient } from '@/lib/supabase'
-
-const supabase = createClient()
-const prismaClient = prisma
+import { supabaseAdmin } from '@/lib/supabase' // Use the pre-initialized admin client
 
 export async function GET() {
   try {
-    const { data: authUsers, error } = await supabase.auth.admin.listUsers()
+    const { data: authUsers, error } = await supabaseAdmin.auth.admin.listUsers()
     if (error) throw error
 
     for (const user of authUsers.users) {
-      await prismaClient.user.upsert({
+      await prisma.user.upsert({
         where: { id: user.id },
-        update: {},
+        update: {}, // Add fields to update if needed
         create: {
           id: user.id,
           email: user.email || '',
