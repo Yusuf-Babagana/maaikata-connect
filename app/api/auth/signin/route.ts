@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase' // Import the initialized client
+import { supabase } from '@/lib/supabase' // Use the pre-initialized client
 import { getCurrentUser } from '@/lib/auth'
 import { z } from 'zod'
-
-// Validate environment variables (optional, but safer)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing Supabase environment variables')
-}
 
 const schema = z.object({
   email: z.string().email(),
