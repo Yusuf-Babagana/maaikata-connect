@@ -46,7 +46,7 @@ export default function HomePage() {
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
               Connect with Verified Professionals
-              <span className="block text-blue-600">Worldwide</span>
+              <span className="block text-blue-600">Worldwide.</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
               Ma'aikata Connect is the global platform that bridges job seekers and employers 
