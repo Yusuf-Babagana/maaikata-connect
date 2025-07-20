@@ -1,0 +1,272 @@
+// Ma'aikata Connect Database Schema
+// Global Job Matching and Worker Verification Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CLIENT    // Employers/Service Requesters
+  PROVIDER  // Job Seekers/Service Providers
+  AGENT     // International Agents
+  ADMIN     // Super Admin
+}
+
+enum UserStatus {
+  PENDING
+  VERIFIED
+  SUSPENDED
+  BANNED
+}
+
+enum JobStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  CLOSED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  role          UserRole   @default(PROVIDER)
+  status        UserStatus @default(PENDING)
+  
+  // Personal Information
+  firstName     String
+  lastName      String
+  phone         String?
+  dateOfBirth   DateTime?
+  profileImage  String?
+  
+  // Location Information
+  country       String
+  state         String?
+  city          String?
+  neighborhood  String?
+  address       String?
+  
+  // Professional Information (for Providers)
+  skills        String[]   @default([])
+  experience    String?
+  hourlyRate    Float?
+  availability  String?
+  bio          String?
+  
+  // Verification
+  idNumber      String?
+  idType        String?
+  idDocument    String?
+  biometricData String?
+  otpVerified   Boolean    @default(false)
+  
+  // Ratings and Reviews
+  rating        Float      @default(0)
+  totalRatings  Int        @default(0)
+  
+  // Timestamps
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  lastLogin     DateTime?
+  
+  // Relationships
+  createdJobs   Job[]      @relation("JobCreator")
+  appliedJobs   JobApplication[]
+  sentRatings   Rating[]   @relation("RatingGiver")
+  receivedRatings Rating[] @relation("RatingReceiver")
+  complaints    Complaint[] @relation("ComplaintUser")
+  agentProfile  Agent?
+  subscription  Subscription?
+  
+  @@map("users")
+}
+
+model Job {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  category    String
+  
+  // Location
+  country     String
+  state       String?
+  city        String?
+  neighborhood String?
+  
+  // Job Details
+  budget      Float?
+  currency    String    @default("NGN")
+  duration    String?
+  urgency     String    @default("NORMAL")
+  requirements String[]  @default([])
+  
+  // Status and Timestamps
+  status      JobStatus @default(OPEN)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deadline    DateTime?
+  
+  // Relationships
+  createdById String
+  creator     User      @relation("JobCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  applications JobApplication[]
+  
+  @@map("jobs")
+}
+
+model JobApplication {
+  id          String   @id @default(cuid())
+  message     String?
+  proposedRate Float?
+  
+  // Status
+  status      String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  jobId       String
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([jobId, userId])
+  @@map("job_applications")
+}
+
+model Rating {
+  id          String   @id @default(cuid())
+  rating      Int      // 1-5 stars
+  comment     String?
+  
+  // Context
+  jobId       String?
+  category    String   @default("SERVICE") // SERVICE, BEHAVIOR, COMMUNICATION
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  
+  // Relationships
+  ratedUserId String
+  ratedUser   User     @relation("RatingReceiver", fields: [ratedUserId], references: [id], onDelete: Cascade)
+  ratedById   String
+  ratedBy     User     @relation("RatingGiver", fields: [ratedById], references: [id], onDelete: Cascade)
+  
+  @@map("ratings")
+}
+
+model Complaint {
+  id          String          @id @default(cuid())
+  title       String
+  message     String
+  category    String          // FRAUD, HARASSMENT, POOR_SERVICE, OTHER
+  status      ComplaintStatus @default(OPEN)
+  priority    String          @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
+  
+  // Investigation
+  agentNotes  String?
+  resolution  String?
+  
+  // Timestamps
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  resolvedAt  DateTime?
+  
+  // Relationships
+  userId      String
+  user        User            @relation("ComplaintUser", fields: [userId], references: [id], onDelete: Cascade)
+  agentId     String?
+  agent       Agent?          @relation(fields: [agentId], references: [id])
+  
+  @@map("complaints")
+}
+
+model Agent {
+  id             String   @id @default(cuid())
+  
+  // Agent Information
+  employeeId     String   @unique
+  assignedRegion String[]
+  specialization String[] @default([])
+  
+  // Verification and Status
+  verified       Boolean  @default(false)
+  active         Boolean  @default(true)
+  
+  // Performance Metrics
+  casesHandled   Int      @default(0)
+  rating         Float    @default(0)
+  
+  // Timestamps
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  // Relationships
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  complaints     Complaint[]
+  
+  @@map("agents")
+}
+
+model Subscription {
+  id        String             @id @default(cuid())
+  plan      String             @default("BASIC") // BASIC, PREMIUM, ENTERPRISE
+  status    SubscriptionStatus @default(ACTIVE)
+  
+  // Billing
+  amount    Float
+  currency  String             @default("NGN")
+  
+  // Timestamps
+  startDate DateTime           @default(now())
+  endDate   DateTime
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  
+  // Relationships
+  userId    String             @unique
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("subscriptions")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  type      String   @default("INFO") // INFO, WARNING, SUCCESS, ERROR
+  
+  // Targeting
+  userId    String?
+  role      UserRole?
+  global    Boolean  @default(false)
+  
+  // Status
+  read      Boolean  @default(false)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  
+  @@map("notifications")
+}
