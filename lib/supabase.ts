@@ -14,3 +14,5 @@ if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRole) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRole)
+
+console.log('Supabase client initialized')

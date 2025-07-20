@@ -9,8 +9,17 @@ export interface AuthUser {
   lastName: string
 }
 
+// Function to check if running in a build context (simplified check)
+const isBuildTime = () => process.env.NODE_ENV === 'production' && !process.env.VERCEL
+
 export async function getCurrentUser(): Promise<AuthUser | null> {
   try {
+    // Skip during build time to avoid runtime dependency issues
+    if (isBuildTime()) {
+      console.log('Skipping getCurrentUser during build time')
+      return null
+    }
+
     // Get the authenticated Supabase user
     const { data: { user }, error } = await supabase.auth.getUser()
 
@@ -28,10 +37,10 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
         role: true,
         firstName: true,
         lastName: true,
-      }
+      },
     })
 
-    return dbUser
+    return dbUser || null
   } catch (error) {
     console.error('Error getting current user:', error)
     return null
