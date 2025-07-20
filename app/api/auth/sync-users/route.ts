@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { supabaseAdmin } from '@/lib/supabase' // ✅ Use exported client
+import { createClient } from '@/lib/supabase'
 
+const supabase = createClient()
 const prismaClient = prisma
 
 export async function GET() {
   try {
-    const { data: authUsers, error } = await supabaseAdmin.auth.admin.listUsers()
+    const { data: authUsers, error } = await supabase.auth.admin.listUsers()
     if (error) throw error
 
     for (const user of authUsers.users) {
@@ -16,7 +17,7 @@ export async function GET() {
         create: {
           id: user.id,
           email: user.email || '',
-          role: 'PROVIDER',
+          role: 'PROVIDER', // Default role for existing users
           status: 'PENDING',
           firstName: user.user_metadata?.firstName || '',
           lastName: user.user_metadata?.lastName || '',

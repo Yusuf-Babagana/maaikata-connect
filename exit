@@ -1,0 +1,29 @@
+[33mcommit d6df0e2af8cc3e3443d92d14ad3634737d9aa226[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Yusuf-Babagana <yusufmuhdkk@gmail.com>
+Date:   Sun Jul 20 15:25:57 2025 +0100
+
+    Updated lib/supabase.ts
+
+[33mcommit 15083d67dc231008e1ebe997e8cf879ea96cb2a5[m
+Author: Yusuf-Babagana <yusufmuhdkk@gmail.com>
+Date:   Sun Jul 20 15:20:15 2025 +0100
+
+    Updated api/auth/signin/route.ts
+
+[33mcommit 7880cd087acc27b1fa121b53da7a8bb5faa60048[m
+Author: Yusuf-Babagana <yusufmuhdkk@gmail.com>
+Date:   Sun Jul 20 15:14:10 2025 +0100
+
+    Updated lib/superbase.ts
+
+[33mcommit ae9a07f250a57708ca1e2f38b27c80075dfc8947[m
+Author: Yusuf-Babagana <yusufmuhdkk@gmail.com>
+Date:   Sun Jul 20 15:10:21 2025 +0100
+
+    Updated
+
+[33mcommit 48e2d8fafb363193f82e4b17fd8f85874004a8c5[m
+Author: Yusuf-Babagana <yusufmuhdkk@gmail.com>
+Date:   Sun Jul 20 15:03:16 2025 +0100
+
+    first commit
