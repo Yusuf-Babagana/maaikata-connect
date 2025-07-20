@@ -159,7 +159,7 @@ export default function ClientDashboard() {
                     <div className="flex-1">
                       <div className="flex items-center space-x-3">
                         <h3 className="font-medium text-lg">{job.title}</h3>
-                        <Badge variant={job.status === 'COMPLETED' ? 'success' : 'secondary'} className="text-sm">
+                        <Badge variant={job.status === 'COMPLETED' ? 'default' : 'secondary'} className="text-sm">
                           {job.status.replace('_', ' ')}
                         </Badge>
                       </div>
