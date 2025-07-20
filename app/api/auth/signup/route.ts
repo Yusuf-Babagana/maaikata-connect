@@ -5,6 +5,11 @@ import { prisma } from '@/lib/prisma';
 import { supabaseAdmin } from '@/lib/supabase';
 import { z } from 'zod';
 
+// Validate environment variables at runtime
+if (!supabaseAdmin) {
+  throw new Error('Supabase admin client not initialized. Check environment variables.');
+}
+
 const signupSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
@@ -27,6 +32,15 @@ export async function POST(request: NextRequest) {
       email: validatedData.email,
       password: validatedData.password,
       email_confirm: true,
+      user_metadata: {
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+        role: validatedData.role,
+        country: validatedData.country,
+        state: validatedData.state,
+        city: validatedData.city,
+        phone: validatedData.phone,
+      },
     });
 
     if (authError || !authData.user) {
@@ -39,7 +53,7 @@ export async function POST(request: NextRequest) {
     // Create user in your own DB (linking Supabase UID)
     const user = await prisma.user.create({
       data: {
-        id: authData.user.id, // ensure this matches your schema
+        id: authData.user.id, // Ensure this matches your Prisma schema's ID field
         email: validatedData.email,
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
