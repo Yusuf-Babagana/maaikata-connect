@@ -1,5 +1,7 @@
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase' // Use the pre-initialized client
+import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/auth'
 import { z } from 'zod'
 
@@ -25,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: 'User not found' }, { status: 404 })
   } catch (error) {
-    console.error('Sign-in error:', error) // Log for debugging
+    console.error('Sign-in error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
