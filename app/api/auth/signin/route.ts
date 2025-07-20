@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase' // Import the initialized client
 import { getCurrentUser } from '@/lib/auth'
 import { z } from 'zod'
 
-// You should replace the placeholders with your actual Supabase URL and anon/public key
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
-const supabase = createClient(supabaseUrl, supabaseKey)
+// Validate environment variables (optional, but safer)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('Missing Supabase environment variables')
+}
 
 const schema = z.object({
   email: z.string().email(),
@@ -18,7 +20,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, password } = schema.parse(body)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
@@ -30,6 +32,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ error: 'User not found' }, { status: 404 })
   } catch (error) {
+    console.error('Sign-in error:', error) // Log for debugging
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
