@@ -9,26 +9,21 @@ export interface AuthUser {
   lastName: string
 }
 
-// Function to check if running in a build context (simplified check)
 const isBuildTime = () => process.env.NODE_ENV === 'production' && !process.env.VERCEL
 
 export async function getCurrentUser(): Promise<AuthUser | null> {
   try {
-    // Skip during build time to avoid runtime dependency issues
     if (isBuildTime()) {
       console.log('Skipping getCurrentUser during build time')
       return null
     }
 
-    // Get the authenticated Supabase user
     const { data: { user }, error } = await supabase.auth.getUser()
-
     if (error || !user || !user.email) {
       console.error('Supabase Auth Error:', error?.message)
       return null
     }
 
-    // Query your local DB using Prisma to get full user profile with role
     const dbUser = await prisma.user.findUnique({
       where: { email: user.email },
       select: {
