@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { supabaseAdmin } from '@/lib/supabase' // Use the pre-initialized admin client
+import { Role } from '@prisma/client'
 
 export async function GET() {
   try {
@@ -9,16 +10,14 @@ export async function GET() {
 
     for (const user of authUsers.users) {
       await prisma.user.upsert({
-        where: { id: user.id },
+        where: { id: Number(user.id) },
         update: {}, // Add fields to update if needed
         create: {
-          id: user.id,
-          email: user.email || '',
-          role: 'PROVIDER', // Default role for existing users
-          status: 'PENDING',
-          firstName: user.user_metadata?.firstName || '',
-          lastName: user.user_metadata?.lastName || '',
-          country: user.user_metadata?.country || 'NGN',
+          id: Number(user.id),
+          email: user.email ?? '', // Provide a default if email is missing
+          password: '', // Set a default or generate a password if needed
+          name: user.user_metadata?.name ?? '', // Provide a default if name is missing
+          role: Role.STUDENT, // Default role for existing users
           createdAt: new Date(user.created_at),
         },
       })
