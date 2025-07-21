@@ -14,10 +14,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Only export supabaseAdmin if service role key is provided
 export const supabaseAdmin = supabaseServiceRoleKey
   ? createClient(supabaseUrl, supabaseServiceRoleKey)
-  : null;
+  : undefined
 
 if (!supabaseServiceRoleKey) {
   console.warn('SUPABASE_SERVICE_ROLE_KEY not set, supabaseAdmin not available')

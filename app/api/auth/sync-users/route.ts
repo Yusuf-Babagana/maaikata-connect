@@ -4,6 +4,9 @@ import { supabaseAdmin } from '@/lib/supabase' // Use the pre-initialized admin 
 
 export async function GET() {
   try {
+    if (!supabaseAdmin) {
+      throw new Error('Supabase admin client is not initialized');
+    }
     const { data: authUsers, error } = await supabaseAdmin.auth.admin.listUsers()
     if (error) throw error
 

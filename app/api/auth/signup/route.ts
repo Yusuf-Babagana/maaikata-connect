@@ -5,10 +5,13 @@ import { prisma } from '@/lib/prisma';
 import { supabaseAdmin } from '@/lib/supabase';
 import { z } from 'zod';
 
-// Validate environment variables at runtime
+// Type guard to ensure supabaseAdmin is defined
 if (!supabaseAdmin) {
-  throw new Error('Supabase admin client not initialized. Check environment variables.');
+  throw new Error('Supabase admin client not initialized. Check SUPABASE_SERVICE_ROLE_KEY environment variable.');
 }
+
+// Assert supabaseAdmin is not null after the check
+const safeSupabaseAdmin = supabaseAdmin as NonNullable<typeof supabaseAdmin>;
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -28,7 +31,7 @@ export async function POST(request: NextRequest) {
     const validatedData = signupSchema.parse(body);
 
     // Create user in Supabase Auth
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    const { data: authData, error: authError } = await safeSupabaseAdmin.auth.admin.createUser({
       email: validatedData.email,
       password: validatedData.password,
       email_confirm: true,
@@ -50,10 +53,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create user in your own DB (linking Supabase UID)
+    // Create user in Prisma
     const user = await prisma.user.create({
       data: {
-        id: authData.user.id, // Ensure this matches your Prisma schema's ID field
+        id: authData.user.id,
         email: validatedData.email,
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
