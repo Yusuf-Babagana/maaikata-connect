@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "next build",
+    "export": "next export -o public",
     "start": "next start",
     "lint": "next lint"
   },
@@ -55,7 +56,6 @@
     "next": "^14.2.0",
     "next-themes": "^0.3.0",
     "postcss": "^8.4.30",
-    "prisma": "^6.12.0",
     "react": "^18.2.0",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.2.0",
