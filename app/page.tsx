@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -23,9 +22,9 @@ export default function HomePage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">MC</span>
+                <span className="text-white font-bold text-sm">SM</span>
               </div>
-              <span className="font-bold text-xl">Ma'aikata Connect</span>
+              <span className="font-bold text-xl">S.Mahi Global</span>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -49,7 +48,7 @@ export default function HomePage() {
               <span className="block text-blue-600">Worldwide.</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Ma'aikata Connect is the global platform that bridges job seekers and employers 
+              S.Mahi Global is the global platform that bridges job seekers and employers 
               with verified professionals, ensuring accountability and trust through our 
               international agent network.
             </p>
@@ -97,7 +96,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose Ma'aikata Connect?
+              Why Choose S.Mahi Global?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Our platform provides unmatched security, verification, and support for both 
@@ -279,7 +278,7 @@ export default function HomePage() {
             Ready to Get Started?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of professionals and businesses already using Ma'aikata Connect 
+            Join thousands of professionals and businesses already using S.Mahi Global 
             to build successful working relationships.
           </p>
           
@@ -307,9 +306,9 @@ export default function HomePage() {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">MC</span>
+                  <span className="text-white font-bold text-sm">SM</span>
                 </div>
-                <span className="font-bold text-xl">Ma'aikata Connect</span>
+                <span className="font-bold text-xl">S.Mahi Global</span>
               </div>
               <p className="text-gray-400">
                 Connecting verified professionals worldwide with accountability and trust.
@@ -348,7 +347,7 @@ export default function HomePage() {
           </div>
           
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Ma'aikata Connect. All rights reserved.</p>
+            <p>© 2025 S.Mahi Global. All rights reserved.</p>
           </div>
         </div>
       </footer>
