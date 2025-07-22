@@ -9,14 +9,16 @@ export async function GET(request: NextRequest) {
   const category = searchParams.get('category');
   const country = searchParams.get('country');
 
+  const orConditions = [
+    location ? { location: { contains: location, mode: 'insensitive' as const } } : undefined,
+    category ? { category: { contains: category, mode: 'insensitive' as const } } : undefined,
+    country ? { country: { contains: country, mode: 'insensitive' as const } } : undefined,
+  ].filter((cond): cond is Exclude<typeof cond, undefined> => cond !== undefined);
+
   const jobs = await prisma.job.findMany({
     where: {
       status: 'OPEN',
-      OR: [
-        location ? { location: { contains: location, mode: 'insensitive' } } : {},
-        category ? { category: { contains: category, mode: 'insensitive' } } : {},
-        country ? { country: { contains: country, mode: 'insensitive' } } : {},
-      ],
+      ...(orConditions.length > 0 ? { OR: orConditions } : {}),
     },
     include: { creator: { select: { firstName: true, lastName: true } } },
   });
