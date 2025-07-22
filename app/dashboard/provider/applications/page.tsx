@@ -55,7 +55,7 @@ export default function ApplicationsPage() {
                   <CardTitle className="text-lg font-semibold">{app.job.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 mb-2">Status: <Badge variant={app.status === 'ACCEPTED' ? 'success' : app.status === 'REJECTED' ? 'destructive' : 'secondary'}>{app.status}</Badge></p>
+                  <p className="text-gray-600 mb-2">Status: <Badge variant={app.status === 'ACCEPTED' ? 'default' : app.status === 'REJECTED' ? 'destructive' : 'secondary'}>{app.status}</Badge></p>
                   <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
                     <span className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
