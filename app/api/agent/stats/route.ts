@@ -40,4 +40,4 @@ export async function GET(request: NextRequest) {
     usersVerified: verifiedUsers.count || 0,
     caseloadRating,
   });
-}s
+}
