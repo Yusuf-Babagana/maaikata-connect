@@ -34,106 +34,50 @@ export default function AgentDashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        // Fetch user details
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('firstName, lastName')
-          .eq('id', user.id)
-          .single()
-        if (userError) console.error('User fetch error:', userError)
-        else setUserName(`${userData.firstName} ${userData.lastName || ''}`)
-
-        // Fetch agent details from agent profile
-        const { data: agentData } = await supabase
-          .from('agents')
-          .select('casesHandled')
-          .eq('userId', user.id)
-          .single()
-        const casesHandled = agentData?.casesHandled || 0
-
-        // Fetch stats
-        const { data: pendingComplaintsData, error: pendingError } = await supabase
-          .from('complaints')
-          .select('*', { count: 'exact' })
-          .eq('agentId', user.id)
-          .eq('status', 'OPEN')
-        const { data: resolvedComplaintsData, error: resolvedError } = await supabase
-          .from('complaints')
-          .select('*', { count: 'exact' })
-          .eq('agentId', user.id)
-          .eq('status', 'RESOLVED')
-        const { data: verifiedUsersData, error: verifiedError } = await supabase
-          .from('users')
-          .select('*', { count: 'exact' })
-          .eq('status', 'VERIFIED')
-          .eq('agentProfile.userId', user.id) // Assuming relation exists
-        if (pendingError || resolvedError || verifiedError) console.error('Stats fetch error:', pendingError || resolvedError || verifiedError)
-        else {
-          setStats({
-            pendingComplaints: pendingComplaintsData.length,
-            resolvedComplaints: resolvedComplaintsData.length,
-            usersVerified: verifiedUsersData.length,
-            caseloadRating: 4.7, // Placeholder; calculate from feedback or casesHandled
-          })
-        }
-
-        // Fetch recent complaints
-        const { data: complaintsData, error: complaintsError } = await supabase
-          .from('complaints')
-          .select(`
-            *,
-            user:users(firstName, lastName)
-          `)
-          .eq('agentId', user.id)
-          .order('createdAt', { ascending: false })
-          .limit(5)
-        if (complaintsError) console.error('Complaints fetch error:', complaintsError)
-        else {
-          setRecentComplaints(complaintsData.map((complaint: any) => ({
-            id: complaint.id,
-            title: complaint.title,
-            category: complaint.category,
-            priority: complaint.priority,
-            user: `${complaint.user.firstName} ${complaint.user.lastName || ''}`,
-            createdAt: complaint.createdAt.split('T')[0],
-            status: complaint.status,
-          })))
-        }
-
-        // Fetch pending verifications
-        const { data: verificationsData, error: verificationsError } = await supabase
-          .from('users')
-          .select(`
-            id,
-            firstName,
-            lastName,
-            idType,
-            idDocument,
-            createdAt
-          `)
-          .eq('status', 'PENDING')
-          .order('createdAt', { ascending: false })
-          .limit(5)
-        if (verificationsError) console.error('Verifications fetch error:', verificationsError)
-        else {
-          setPendingVerifications(verificationsData.map((user: any) => ({
-            id: user.id,
-            user: `${user.firstName} ${user.lastName || ''}`,
-            type: user.idType || 'ID_VERIFICATION',
-            submittedAt: user.createdAt.split('T')[0],
-            documents: user.idDocument ? 1 : 0, // Simplified; adjust if multiple docs are stored
-          })))
-        }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || user.user_metadata?.role !== 'AGENT') {
+        setLoading(false);
+        return;
       }
-      setLoading(false)
-    }
 
-    fetchData()
-  }, [])
+      const { data: session } = await supabase.auth.getSession();
+      const authToken = session.session?.access_token;
 
-  if (loading) return <div className="p-6 text-center">Loading...</div>
+      // Fetch user details
+      const userRes = await fetch('/api/agent/profile', {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const userData = await userRes.json();
+      if (userData) setUserName(`${userData.firstName} ${userData.lastName || ''}`);
+
+      // Fetch stats
+      const statsRes = await fetch('/api/agent/stats', {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const statsData = await statsRes.json();
+      if (statsData) setStats(statsData);
+
+      // Fetch recent complaints
+      const complaintsRes = await fetch('/api/agent/complaints/recent', {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const complaintsData = await complaintsRes.json();
+      if (complaintsData) setRecentComplaints(complaintsData);
+
+      // Fetch pending verifications
+      const verificationsRes = await fetch('/api/agent/verifications/pending', {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const verificationsData = await verificationsRes.json();
+      if (verificationsData) setPendingVerifications(verificationsData);
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) return <div className="p-6 text-center">Loading...</div>;
 
   return (
     <DashboardLayout userRole={role as string} userName={userName || 'User'}>

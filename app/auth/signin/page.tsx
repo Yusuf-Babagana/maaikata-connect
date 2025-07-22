@@ -79,7 +79,7 @@ export default function SignInPage() {
     <div className="min-h-screen bg-blue-50 flex items-center justify-center px-4">
       <div className="bg-white p-8 rounded-md shadow-md w-full max-w-md">
         <div className="text-center mb-6">
-          <p className="text-3xl font-bold text-blue-600">Ma'aikata Connect</p>
+          <p className="text-3xl font-bold text-blue-600">S.Mahi Global</p>
           <p className="text-gray-600">Sign in to your account</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
