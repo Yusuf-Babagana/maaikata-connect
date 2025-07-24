@@ -3,10 +3,20 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import Link from 'next/link'
+
+interface FormData {
+  email: string
+  password: string
+}
 
 export default function SignInPage() {
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [form, setForm] = useState<FormData>({ email: '', password: '' })
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -14,11 +24,12 @@ export default function SignInPage() {
   }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoading(true)
     setError(null)
     console.log('Submitting login:', form)
 
@@ -30,7 +41,7 @@ export default function SignInPage() {
 
       if (authError) {
         console.error('Auth Error:', authError.message)
-        setError(authError.message)
+        setError(`Auth Error: ${authError.message}`)
         return
       }
 
@@ -44,34 +55,28 @@ export default function SignInPage() {
 
         if (roleError) {
           console.error('Role Fetch Error:', roleError)
-          setError('Failed to retrieve user role: ' + roleError.message)
+          setError(`Failed to retrieve user role: ${roleError.message}`)
           return
         }
 
         if (userRoleData) {
-          switch (userRoleData.role) {
-            case 'CLIENT':
-              router.push('/dashboard/client')
-              break
-            case 'PROVIDER':
-              router.push('/dashboard/provider')
-              break
-            case 'AGENT':
-              router.push('/dashboard/agent')
-              break
-            case 'ADMIN':
-              router.push('/dashboard/admin')
-              break
-            default:
-              setError('Unknown role: ' + userRoleData.role)
+          const redirectMap: Record<string, string> = {
+            CLIENT: '/dashboard/client',
+            PROVIDER: '/dashboard/provider',
+            AGENT: '/dashboard/agent',
+            ADMIN: '/dashboard/admin',
           }
+          const redirectPath = redirectMap[userRoleData.role] || '/'
+          router.push(redirectPath)
+        } else {
+          setError('Login failed, user role not found')
         }
-      } else {
-        setError('Login failed, please try again')
       }
     } catch (error) {
       console.error('Unexpected Error:', error)
       setError('An unexpected error occurred')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -79,37 +84,61 @@ export default function SignInPage() {
     <div className="min-h-screen bg-blue-50 flex items-center justify-center px-4">
       <div className="bg-white p-8 rounded-md shadow-md w-full max-w-md">
         <div className="text-center mb-6">
-          <p className="text-3xl font-bold text-blue-600">S.Mahi Global</p>
+          <h1 className="text-3xl font-bold text-blue-600">S.Mahi Global</h1>
           <p className="text-gray-600">Sign in to your account</p>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <p className="text-red-600 text-sm text-center" role="alert">
+              {error}
+            </p>
+          )}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email Address</label>
-            <input
+            <Label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email Address
+            </Label>
+            <Input
+              id="email"
               type="email"
               name="email"
               value={form.email}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              placeholder="Enter your email"
               required
+              className="mt-1"
+              aria-label="Email address"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
-            <input
+            <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Password
+            </Label>
+            <Input
+              id="password"
               type="password"
               name="password"
               value={form.password}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              placeholder="Enter your password"
               required
+              className="mt-1"
+              aria-label="Password"
             />
           </div>
-          <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">
-            Sign In
-          </button>
+          <Button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+            disabled={loading}
+          >
+            {loading ? 'Signing In...' : 'Sign In'}
+          </Button>
         </form>
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Don’t have an account?{' '}
+          <Link href="/auth/signup" className="text-blue-600 hover:underline">
+            Sign Up
+          </Link>
+        </p>
       </div>
     </div>
   )
